@@ -13,13 +13,14 @@ void setup() {
   Serial.begin(9600);
   if (!SD.begin(SD_ChipSelectPin)) {
     Serial.println("SD Fail");
+    while (true) {
+    }
   }
-  Serial.println("SD works");
 
-  root = SD.open("/");
+  File root = SD.open("/");
   int numFiles = getNumFiles(root);
   String files[numFiles];
-  File root = SD.open("/");
+  root = SD.open("/");
   for (int i = 0; i < numFiles; i++) {
     File entry = root.openNextFile();
     if (!entry) {
@@ -44,6 +45,7 @@ void setup() {
   while (true) {
     proximity = digitalRead(REED_PIN);
     if (proximity == HIGH && !doorOpen) {
+      randomSeed(millis());
       int song = random(0, numFiles);
       music.play(string2char(files[song]));
       while (music.isPlaying() == 1 && digitalRead(REED_PIN) == HIGH) {
@@ -52,7 +54,7 @@ void setup() {
       doorOpen = true;
     } else if (proximity == LOW) {
       doorOpen = false;
-      delay(1000);
+      delay(100);
     }
   }
 }
