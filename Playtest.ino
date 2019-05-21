@@ -34,8 +34,6 @@ void setup() {
     entry.close();
   }
 
-  randomSeed(analogRead(A0));
-
   music.volume(7);
 
   bool doorOpen = true;
