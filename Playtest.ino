@@ -35,8 +35,6 @@ void setup() {
   }
 
   randomSeed(analogRead(A0));
-  int song = random(0, numFiles);
-  Serial.println(song);
 
   music.volume(7);
 
