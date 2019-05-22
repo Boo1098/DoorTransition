@@ -13,29 +13,13 @@ void setup() {
   pinMode(REED_PIN, INPUT_PULLUP);
   music.speakerPin = 9;
   if (!SD.begin(SD_ChipSelectPin)) {
-    Serial.println("SD Fail");
     while (true) {
     }
   }
 
   File root = SD.open("/");
   int numFiles = getNumFiles(root);
-  String files[numFiles];
-  root = SD.open("/");
-  for (int i = 0; i < numFiles; i++) {
-    File entry = root.openNextFile();
-    if (!entry) {
-      break;
-    }
-    if (entry.isDirectory()) {
-      i--;
-    } else {
-      files[i] = entry.name();
-    }
-    entry.close();
-  }
-
-  music.volume(7);
+  root.close();
 
   bool doorOpen = true;
   int proximity = LOW;
@@ -45,7 +29,9 @@ void setup() {
       if (proximity == HIGH && !doorOpen) {
         randomSeed(millis());
         int song = random(0, numFiles);
-        music.play(string2char(files[song]));
+        String file = String(song);
+        file += ".wav";
+        music.play(string2char(file));
         while (music.isPlaying() == 1 && digitalRead(REED_PIN) == HIGH && analogRead(A5) > DARK_BASELINE) {
         }
         music.disable();
@@ -71,6 +57,7 @@ int getNumFiles(File dir) {
     if (entry.isDirectory()) {
     } else {
       count++;
+      Serial.println(entry.name());
     }
     entry.close();
   }
