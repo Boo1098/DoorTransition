@@ -2,16 +2,17 @@
 #include "SPI.h"
 #include "TMRpcm.h"
 
-#define SD_ChipSelectPin 4
-#define REED_PIN 2
+#define SD_ChipSelectPin 10
+#define REED_PIN 8
 #define PR_PIN A5
+#define SPEAKER_PIN 9
 #define DARK_BASELINE 30
 
 TMRpcm music;
 
 void setup() {
   pinMode(REED_PIN, INPUT_PULLUP);
-  music.speakerPin = 9;
+  music.speakerPin = SPEAKER_PIN;
   if (!SD.begin(SD_ChipSelectPin)) {
     while (true) {
     }
