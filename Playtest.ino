@@ -4,13 +4,14 @@
 
 #define SD_ChipSelectPin 4
 #define REED_PIN 2
+#define PR_PIN A5
+#define DARK_BASELINE 30
 
 TMRpcm music;
 
 void setup() {
   pinMode(REED_PIN, INPUT_PULLUP);
   music.speakerPin = 9;
-  Serial.begin(9600);
   if (!SD.begin(SD_ChipSelectPin)) {
     Serial.println("SD Fail");
     while (true) {
@@ -39,18 +40,22 @@ void setup() {
   bool doorOpen = true;
   int proximity = LOW;
   while (true) {
-    proximity = digitalRead(REED_PIN);
-    if (proximity == HIGH && !doorOpen) {
-      randomSeed(millis());
-      int song = random(0, numFiles);
-      music.play(string2char(files[song]));
-      while (music.isPlaying() == 1 && digitalRead(REED_PIN) == HIGH) {
+    if (analogRead(A5) > DARK_BASELINE) {
+      proximity = digitalRead(REED_PIN);
+      if (proximity == HIGH && !doorOpen) {
+        randomSeed(millis());
+        int song = random(0, numFiles);
+        music.play(string2char(files[song]));
+        while (music.isPlaying() == 1 && digitalRead(REED_PIN) == HIGH && analogRead(A5) > DARK_BASELINE) {
+        }
+        music.disable();
+        doorOpen = true;
+      } else if (proximity == LOW) {
+        doorOpen = false;
+        delay(100);
       }
-      music.disable();
-      doorOpen = true;
-    } else if (proximity == LOW) {
-      doorOpen = false;
-      delay(100);
+    } else {
+      delay(5000);
     }
   }
 }
