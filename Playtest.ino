@@ -75,9 +75,6 @@ void setup() {
       }
     } else {
       digitalWrite(STATUS_LED, LOW);
-      // Only check light sensor once every 5 seconds
-    //   delay(5000);
-
     }
   }
 }
@@ -90,8 +87,7 @@ int getNumFiles(File dir) {
     if (!entry) {
       break;
     }
-    if (entry.isDirectory()) {
-    } else {
+    if (!entry.isDirectory()) {
       count++;
     }
     entry.close();
