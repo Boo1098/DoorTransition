@@ -7,30 +7,43 @@
 #define PR_PIN A5
 #define SPEAKER_PIN 9
 #define DARK_BASELINE 30
+#define STATUS_LED 7
+#define LIGHT_POT A3
+#define SWITCH 5
 
 TMRpcm music;
 
 void setup() {
   pinMode(REED_PIN, INPUT_PULLUP);
+  pinMode(SWITCH, INPUT_PULLUP);
+  pinMode(6, OUTPUT);
+  pinMode(STATUS_LED, OUTPUT);
+  digitalWrite(6,LOW);
   music.speakerPin = SPEAKER_PIN;
+  Serial.begin(9600);
 
   // Initialize SD card
   if (!SD.begin(SD_ChipSelectPin)) {
+      Serial.println("SD Fail");
     while (true) {
     }
   }
+  Serial.println("SD Works");
 
   // Count how many songs there are
   File root = SD.open("/");
   int numFiles = getNumFiles(root);
   root.close();
 
+  music.setVolume(4);
+
   // Initialize Variables
   bool doorOpen = true;
   int door = LOW;
   while (true) {
     // Make sure it's not night
-    if (analogRead(A5) > DARK_BASELINE) {
+    if (analogRead(PR_PIN) > analogRead(LIGHT_POT) && digitalRead(SWITCH) == HIGH) {
+        digitalWrite(STATUS_LED, HIGH);
       // Check if door is open or not
       door = digitalRead(REED_PIN);
       if (door == HIGH && !doorOpen) {
@@ -41,13 +54,16 @@ void setup() {
         int song = random(0, numFiles);
         String file = String(song);
         file += ".wav";
+        Serial.println(file);
 
         // Plays song
         music.play(string2char(file));
+        digitalWrite(6,HIGH);
         while (music.isPlaying() == 1 && digitalRead(REED_PIN) == HIGH) {
         }
 
         // When song is done, or door is shut, ends song
+        digitalWrite(6,LOW);
         music.disable();
         doorOpen = true;
 
@@ -58,8 +74,10 @@ void setup() {
         delay(100);
       }
     } else {
+      digitalWrite(STATUS_LED, LOW);
       // Only check light sensor once every 5 seconds
-      delay(5000);
+    //   delay(5000);
+
     }
   }
 }
