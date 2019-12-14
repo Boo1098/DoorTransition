@@ -6,7 +6,6 @@
 #define REED_PIN 8
 #define PR_PIN A5
 #define SPEAKER_PIN 9
-#define DARK_BASELINE 30
 #define STATUS_LED 7
 #define LIGHT_POT A3
 #define SWITCH 5
